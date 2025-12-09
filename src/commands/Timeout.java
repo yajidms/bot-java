@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -20,7 +21,7 @@ public class Timeout {
                 .addOption(OptionType.USER, "user", "The user to timeout.", true)
                 .addOption(OptionType.STRING, "duration", "Timeout duration (e.g., 10m, 1h).", true)
                 .addOption(OptionType.STRING, "reason", "Timeout reason.", false)
-                .setDefaultPermissions(Permission.MODERATE_MEMBERS.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS))
                 .setGuildOnly(true);
     }
 

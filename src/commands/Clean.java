@@ -3,6 +3,7 @@ package commands;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -12,12 +13,12 @@ public class Clean {
     public static SlashCommandData getCommandData() {
         return Commands.slash("clean", "Delete multiple messages")
                 .addOption(OptionType.INTEGER, "amount", "Number of messages to delete (1-100)", true)
-                .setDefaultPermissions(Permission.MANAGE_MESSAGES.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
                 .setGuildOnly(true);
     }
 
     public static void execute(SlashCommandInteractionEvent interaction) {
-        if (!interaction.getMember().hasPermission(Permission.MANAGE_MESSAGES)) {
+        if (!interaction.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             interaction.reply("❌ You don't have permission to use this command!").setEphemeral(true).queue();
             return;
         }

@@ -1,7 +1,9 @@
 package commands;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -14,7 +16,7 @@ public class Unban {
     public static SlashCommandData getCommandData() {
         return Commands.slash("unban", "Unbans a specific user.")
                 .addOption(OptionType.STRING, "user_id", "The user ID to unban.", true)
-                .setDefaultPermissions(Permission.ADMINISTRATOR.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
                 .setGuildOnly(true);
     }
 
@@ -35,7 +37,7 @@ public class Unban {
                     return;
                 }
 
-                interaction.getGuild().unban(userId).queue(success -> {
+                interaction.getGuild().unban(UserSnowflake.fromId(userId)).queue(success -> {
                     interaction.reply("User with ID **" + userId + "** has been successfully unbanned.").queue();
 
                     LogHandler.LogDetails logDetails = new LogHandler.LogDetails();

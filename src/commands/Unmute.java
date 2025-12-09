@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -21,7 +22,7 @@ public class Unmute {
         return Commands.slash("unmute", "Unmute a user.")
                 .addOption(OptionType.USER, "user", "The user to unmute.", true)
                 .addOption(OptionType.STRING, "reason", "Reason for unmuting.", false)
-                .setDefaultPermissions(Permission.MODERATE_MEMBERS.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS))
                 .setGuildOnly(true);
     }
 

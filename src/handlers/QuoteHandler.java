@@ -14,35 +14,41 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Handler for Quote of the Day functionality.
+ * Matches the functionality of quoteHandler.js exactly.
+ */
 public class QuoteHandler {
 
     private static final Dotenv dotenv = Dotenv.configure().load();
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public static class Quote {
-        public String quote;
-        public String author;
+    /**
+     * Quote data class - matches JS structure
+     */
+    public record Quote(String quote, String author) {}
 
-        public Quote(String quote, String author) {
-            this.quote = quote;
-            this.author = author;
-        }
-    }
-
+    /**
+     * Fetches Quote of the Day from ZenQuotes API
+     * Matches JS getQuoteOfTheDay function
+     */
     public static Quote getQuoteOfTheDay() {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet request = new HttpGet("https://zenquotes.io/api/random");
+            var request = new HttpGet("https://zenquotes.io/api/random");
 
             try (ClassicHttpResponse response = client.execute(request)) {
                 String jsonResponse = EntityUtils.toString(response.getEntity());
                 JsonNode jsonArray = objectMapper.readTree(jsonResponse);
 
-                if (jsonArray.isArray() && jsonArray.size() > 0) {
+                if (jsonArray.isArray() && !jsonArray.isEmpty()) {
                     JsonNode quoteData = jsonArray.get(0);
                     String quote = quoteData.get("q").asText();
                     String author = quoteData.get("a").asText();
@@ -55,6 +61,10 @@ public class QuoteHandler {
         return new Quote(null, null);
     }
 
+    /**
+     * Sends QOTD to Discord channel with embed format
+     * Matches JS sendQOTD function
+     */
     public static void sendQOTD(JDA client) {
         try {
             String channelId = dotenv.get("QUOTE_CHANNEL_ID");
@@ -70,15 +80,16 @@ public class QuoteHandler {
             }
 
             Quote quoteData = getQuoteOfTheDay();
-            if (quoteData.quote != null && quoteData.author != null) {
-                EmbedBuilder embed = new EmbedBuilder()
-                    .setColor(new Color(0x00ffed))
-                    .setTitle("Quote of the Day")
-                    .setDescription("\"" + quoteData.quote + "\"")
-                    .setFooter("- " + quoteData.author)
-                    .setTimestamp(Instant.now());
+            if (quoteData.quote() != null && quoteData.author() != null) {
+                var embed = new EmbedBuilder()
+                        .setColor(new Color(0x00ffed))
+                        .setTitle("Quote of the Day")
+                        .setDescription("\"" + quoteData.quote() + "\"")
+                        .setFooter("- " + quoteData.author())
+                        .setTimestamp(Instant.now())
+                        .build();
 
-                channel.sendMessageEmbeds(embed.build()).queue();
+                channel.sendMessageEmbeds(embed).queue();
                 System.out.println("QOTD sent successfully");
             } else {
                 System.err.println("Failed to get Quote of the Day");
@@ -88,6 +99,10 @@ public class QuoteHandler {
         }
     }
 
+    /**
+     * Schedules QOTD based on time from .env (format HH:mm UTC time)
+     * Matches JS scheduleQOTD function using cron-like scheduling
+     */
     public static void scheduleQOTD(JDA client) {
         try {
             String qotdTime = dotenv.get("QOTD_TIME");
@@ -100,28 +115,70 @@ public class QuoteHandler {
             int utcHour = Integer.parseInt(timeParts[0]);
             int utcMinute = Integer.parseInt(timeParts[1]);
 
-            // Calculate initial delay and period (24 hours)
-            long initialDelay = calculateInitialDelay(utcHour, utcMinute);
-            long period = 24 * 60 * 60; // 24 hours in seconds
+            // Calculate initial delay until next scheduled time
+            LocalTime scheduledTime = LocalTime.of(utcHour, utcMinute);
+            LocalTime nowUtc = LocalTime.now(ZoneOffset.UTC);
 
-            scheduler.scheduleAtFixedRate(() -> sendQOTD(client), initialDelay, period, TimeUnit.SECONDS);
+            long initialDelay;
+            if (nowUtc.isBefore(scheduledTime)) {
+                initialDelay = ChronoUnit.MINUTES.between(nowUtc, scheduledTime);
+            } else {
+                // Schedule for tomorrow
+                initialDelay = ChronoUnit.MINUTES.between(nowUtc, LocalTime.MAX) +
+                        ChronoUnit.MINUTES.between(LocalTime.MIN, scheduledTime) + 1;
+            }
 
-            System.out.println("QOTD scheduled for " + String.format("%02d:%02d", utcHour, utcMinute) + " UTC daily");
+            // Schedule daily execution
+            scheduler.scheduleAtFixedRate(
+                    () -> sendQOTD(client),
+                    initialDelay,
+                    24 * 60, // 24 hours in minutes
+                    TimeUnit.MINUTES
+            );
+
+            String formattedHour = String.format("%02d", utcHour);
+            String formattedMinute = String.format("%02d", utcMinute);
+
+            System.out.println("QOTD scheduled daily at " + formattedHour + ":" + formattedMinute + " UTC.");
 
         } catch (Exception e) {
             System.err.println("Error scheduling QOTD: " + e.getMessage());
         }
     }
 
-    private static long calculateInitialDelay(int targetHour, int targetMinute) {
-        long currentTime = System.currentTimeMillis() / 1000; // Current time in seconds
-        long currentDaySeconds = currentTime % (24 * 60 * 60); // Seconds since start of day
-        long targetSeconds = targetHour * 60 * 60 + targetMinute * 60; // Target time in seconds since start of day
+    /**
+     * Gets QOTD for user (via command), returns embed
+     * Matches JS getQOTDForUser function
+     */
+    public static EmbedBuilder getQOTDForUser() {
+        Quote quoteData = getQuoteOfTheDay();
 
-        if (targetSeconds > currentDaySeconds) {
-            return targetSeconds - currentDaySeconds; // Today
-        } else {
-            return (24 * 60 * 60) - currentDaySeconds + targetSeconds; // Tomorrow
+        if (quoteData.quote() == null || quoteData.author() == null) {
+            return new EmbedBuilder()
+                    .setDescription("Failed to get Quote of the Day. Please try again later!")
+                    .setColor(Color.RED);
+        }
+
+        return new EmbedBuilder()
+                .setColor(new Color(0x00ffed))
+                .setTitle("Quote of the Day")
+                .setDescription("\"" + quoteData.quote() + "\"")
+                .setFooter("- " + quoteData.author())
+                .setTimestamp(Instant.now());
+    }
+
+    /**
+     * Shuts down the scheduler gracefully
+     */
+    public static void shutdown() {
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
         }
     }
 }
+

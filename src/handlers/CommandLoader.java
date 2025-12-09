@@ -37,6 +37,8 @@ public class CommandLoader {
             commands.add(Unban.getCommandData());
             commands.add(Retstart.getCommandData());
             commands.add(Setstatus.getCommandData());
+            commands.add(Serverstats.getCommandData());
+            commands.add(Toggleembed.getCommandData());
 
             // Register commands with Discord
             client.updateCommands().addCommands(commands).queue();

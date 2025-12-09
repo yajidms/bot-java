@@ -44,6 +44,8 @@ public class RegisterCommands {
             commands.add(Unban.getCommandData());
             commands.add(Retstart.getCommandData());
             commands.add(Setstatus.getCommandData());
+            commands.add(Serverstats.getCommandData());
+            commands.add(Toggleembed.getCommandData());
 
             // Print command names
             commands.forEach(cmd -> System.out.println(cmd.getName()));

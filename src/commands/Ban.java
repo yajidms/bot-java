@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -19,7 +20,7 @@ public class Ban {
                 .addOption(OptionType.USER, "user", "The user to be banned.", true)
                 .addOption(OptionType.STRING, "waktu", "Ban duration (e.g., 7d, 1h).", false)
                 .addOption(OptionType.STRING, "alasan", "Reason for the ban.", false)
-                .setDefaultPermissions(Permission.BAN_MEMBERS.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.BAN_MEMBERS))
                 .setGuildOnly(true);
     }
 

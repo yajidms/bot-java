@@ -2,6 +2,7 @@ package commands;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import handlers.LogHandler;
@@ -20,7 +21,7 @@ public class Retstart {
 
     public static SlashCommandData getCommandData() {
         return Commands.slash("restart", "[Developer Only] Restart bot system")
-                .setDefaultPermissions(Permission.ADMINISTRATOR.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
                 .setGuildOnly(true);
     }
 

@@ -37,13 +37,13 @@ public class Avatar {
             String displayName = targetUser.getGlobalName() != null ?
                 targetUser.getGlobalName() : targetUser.getName();
 
-            if ("server".equals(avatarType) && targetMember != null && targetMember.getAvatar() != null) {
+            if ("server".equals(avatarType) && targetMember != null && targetMember.getAvatarId() != null) {
                 avatarUrl = targetMember.getAvatarUrl() + "?size=512";
-                isAnimated = targetMember.getAvatar().startsWith("a_");
+                isAnimated = targetMember.getAvatarId().startsWith("a_");
             } else {
-                if (targetUser.getAvatar() != null) {
+                if (targetUser.getAvatarId() != null) {
                     avatarUrl = targetUser.getAvatarUrl() + "?size=512";
-                    isAnimated = targetUser.getAvatar().startsWith("a_");
+                    isAnimated = targetUser.getAvatarId().startsWith("a_");
                 } else {
                     // Default avatar
                     long userId = Long.parseLong(targetUser.getId());

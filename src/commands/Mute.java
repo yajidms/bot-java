@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -24,7 +25,7 @@ public class Mute {
                 .addOption(OptionType.USER, "user", "The user to be muted.", true)
                 .addOption(OptionType.STRING, "waktu", "Mute duration (e.g., 10m, 1h).", false)
                 .addOption(OptionType.STRING, "alasan", "Reason for the mute.", false)
-                .setDefaultPermissions(Permission.MODERATE_MEMBERS.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MODERATE_MEMBERS))
                 .setGuildOnly(true);
     }
 
@@ -68,18 +69,15 @@ public class Mute {
         }
 
         try {
-            Duration duration = null;
-            if (durationStr != null) {
-                duration = parseDuration(durationStr);
-            }
+            final Duration finalDuration = (durationStr != null) ? parseDuration(durationStr) : null;
 
             interaction.getGuild().addRoleToMember(member, mutedRole).reason(reason).queue(success -> {
                 String responseMessage = "✅ **" + user.getAsTag() + "** has been muted.\n**Reason:** " + reason;
-                if (duration != null) {
+                if (finalDuration != null) {
                     responseMessage += "\n**Duration:** " + durationStr;
 
                     // Schedule unmute
-                    scheduleUnmute(interaction.getGuild().getId(), user.getId(), mutedRole.getId(), duration);
+                    scheduleUnmute(interaction.getGuild().getId(), user.getId(), mutedRole.getId(), finalDuration);
                 }
 
                 interaction.reply(responseMessage).queue();
@@ -90,7 +88,7 @@ public class Mute {
                 logDetails.description = "**User:** " + user.getAsTag() + " (" + user.getId() + ")\n" +
                     "**Moderator:** " + interaction.getUser().getAsTag() + "\n" +
                     "**Reason:** " + reason +
-                    (duration != null ? "\n**Duration:** " + durationStr : "");
+                    (finalDuration != null ? "\n**Duration:** " + durationStr : "");
                 logDetails.color = new Color(0x808080);
                 logDetails.userId = user.getId();
 

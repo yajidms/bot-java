@@ -81,6 +81,12 @@ public class InteractionCreate extends ListenerAdapter {
                 case "set":
                     Setstatus.execute(event);
                     break;
+                case "serverstats":
+                    Serverstats.execute(event);
+                    break;
+                case "toggleembed":
+                    Toggleembed.execute(event);
+                    break;
                 default:
                     System.err.println("Command " + commandName + " tidak ditemukan!");
                     return;

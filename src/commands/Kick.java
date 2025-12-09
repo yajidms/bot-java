@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -17,7 +18,7 @@ public class Kick {
         return Commands.slash("kick", "Kicks a user from the server.")
                 .addOption(OptionType.USER, "user", "The user to be kicked.", true)
                 .addOption(OptionType.STRING, "alasan", "Reason for the kick.", false)
-                .setDefaultPermissions(Permission.KICK_MEMBERS.getRawValue())
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.KICK_MEMBERS))
                 .setGuildOnly(true);
     }
 
