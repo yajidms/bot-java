@@ -13,13 +13,11 @@ public class Clean {
     public static SlashCommandData getCommandData() {
         return Commands.slash("clean", "Delete multiple messages")
                 .addOption(OptionType.INTEGER, "amount", "Number of messages to delete (1-100)", true)
-                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
-                .setGuildOnly(true);
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE));
     }
 
     public static void execute(SlashCommandInteractionEvent interaction) {
         if (!interaction.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            interaction.reply("❌ You don't have permission to use this command!").setEphemeral(true).queue();
             return;
         }
 

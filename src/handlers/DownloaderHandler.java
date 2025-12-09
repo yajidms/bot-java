@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Handler for downloading media from Instagram, Facebook, and TikTok.
- * Matches the functionality of downloaderHandler.js exactly.
  */
 public class DownloaderHandler {
 
@@ -29,7 +28,7 @@ public class DownloaderHandler {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
 
-    // Platform configurations matching JS PLATFORM_CONFIG
+    // Platform configurations
     private record PlatformConfig(String endpoint, String fileName, String dataPath, String prefix) {}
 
     private static final Map<String, PlatformConfig> PLATFORM_CONFIG = Map.of(
@@ -38,7 +37,7 @@ public class DownloaderHandler {
         "tt", new PlatformConfig("ttdl", "tiktok.mp4", "data[0]", "f.tt")
     );
 
-    // Usage tutorials matching JS USAGE_TUTORIAL
+    // Usage tutorials
     private static final Map<String, String> USAGE_TUTORIAL = Map.of(
         "ig", "Masukkan URL Reel Instagram yang valid!\nContoh: `f.ig https://instagram.com/...`",
         "fb", "Masukkan URL Video Facebook yang valid!\nContoh: `f.fb https://facebook.com/...`",
@@ -46,14 +45,14 @@ public class DownloaderHandler {
     );
 
     /**
-     * Validates URL format - matches JS validateUrl
+     * Validates URL format
      */
     private static boolean validateUrl(String url) {
         return url != null && url.matches("^https?://\\S+");
     }
 
     /**
-     * Gets file size from URL via HEAD request - matches JS getFileSize
+     * Gets file size from URL via HEAD request
      */
     private static long getFileSize(String url) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -73,7 +72,7 @@ public class DownloaderHandler {
     }
 
     /**
-     * Extracts media URL from API response - matches JS extractMediaData
+     * Extracts media URL from API response
      */
     private static String extractMediaUrl(JsonNode response, String dataPath) {
         try {
@@ -110,7 +109,7 @@ public class DownloaderHandler {
     }
 
     /**
-     * Core handler for media downloads - matches JS handleMediaDownload exactly
+     * Core handler for media downloads
      */
     private static void handleMediaDownload(MessageReceivedEvent event, String platform) {
         var config = PLATFORM_CONFIG.get(platform);
@@ -125,7 +124,7 @@ public class DownloaderHandler {
             messageContent.append(args[i]);
         }
 
-        // Show tutorial if URL is invalid - matches JS behavior
+        // Show tutorial if URL is invalid
         if (!validateUrl(url)) {
             event.getChannel().sendMessage(USAGE_TUTORIAL.get(platform)).queue();
             return;
@@ -133,7 +132,7 @@ public class DownloaderHandler {
 
         CompletableFuture.runAsync(() -> {
             try {
-                // Delete original message - matches JS behavior
+                // Delete original message
                 event.getMessage().delete().queue(null, throwable -> {});
 
                 // Call API
@@ -156,7 +155,7 @@ public class DownloaderHandler {
                         long fileSize = getFileSize(mediaUrl);
                         String modifiedUrl = mediaUrl.replace("dl=1", "dl=0");
 
-                        // Build message content - matches JS format exactly
+                        // Build message content
                         String userMention = "<@" + event.getAuthor().getId() + ">";
                         StringBuilder finalContent = new StringBuilder();
 
@@ -166,7 +165,7 @@ public class DownloaderHandler {
                         finalContent.append(userMention);
 
                         if (fileSize > FILE_SIZE_LIMIT) {
-                            // File too large - send as hidden link (matching JS [᲼](url) format)
+                            // File too large - send as hidden link
                             finalContent.append("\n[᲼](").append(modifiedUrl).append(")");
                             event.getChannel().sendMessage(finalContent.toString())
                                     .setAllowedMentions(java.util.Collections.emptyList())
@@ -188,7 +187,7 @@ public class DownloaderHandler {
                 System.err.println("[" + platform.toUpperCase() + "_ERROR] " + e.getMessage());
                 e.printStackTrace();
 
-                // Send error message and delete after 5 seconds - matches JS behavior
+                // Send error message and delete after 5 seconds
                 event.getChannel().sendMessage("❌ Gagal mengunduh " + platform.toUpperCase() + " video!")
                         .queue(errorMessage -> {
                             errorMessage.delete().queueAfter(5, TimeUnit.SECONDS, null, t -> {});
@@ -198,24 +197,23 @@ public class DownloaderHandler {
     }
 
     /**
-     * Handle Instagram download - matches JS handleIg
+     * Handle Instagram download
      */
     public static void handleIg(MessageReceivedEvent event) {
         handleMediaDownload(event, "ig");
     }
 
     /**
-     * Handle Facebook download - matches JS handleFb
+     * Handle Facebook download
      */
     public static void handleFb(MessageReceivedEvent event) {
         handleMediaDownload(event, "fb");
     }
 
     /**
-     * Handle TikTok download - matches JS handleTt
+     * Handle TikTok download
      */
     public static void handleTt(MessageReceivedEvent event) {
         handleMediaDownload(event, "tt");
     }
 }
-

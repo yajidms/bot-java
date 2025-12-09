@@ -20,17 +20,16 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Handler for downloading YouTube videos.
- * Matches the functionality of ytdlHandler.js exactly.
  */
 public class YtdlHandler {
 
-    // 100MB limit matching JS FILE_SIZE_LIMIT
+    // 100MB limit
     private static final long FILE_SIZE_LIMIT = 100 * 1024 * 1024;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
 
     /**
-     * Gets file size from URL via HEAD request - matches JS getFileSize
+     * Gets file size from URL via HEAD request
      */
     private static long getFileSize(String url) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -64,7 +63,7 @@ public class YtdlHandler {
     }
 
     /**
-     * Handle YouTube download - matches JS handleYtDownload exactly
+     * Handle YouTube download
      */
     public static void handleYtDownload(MessageReceivedEvent event) {
         String prefix = "f.yt";
@@ -74,7 +73,7 @@ public class YtdlHandler {
 
         String[] args = content.substring(prefix.length()).trim().split("\\s+");
 
-        // Validate URL - matches JS urlPattern.test(args[0])
+        // Validate URL
         if (args.length == 0 || args[0].isEmpty() || !args[0].matches("https?://\\S+")) {
             event.getChannel().sendMessage("Enter a valid YouTube URL!\nExample: `f.yt https://youtube.com/...`")
                     .queue();
@@ -83,7 +82,7 @@ public class YtdlHandler {
 
         CompletableFuture.runAsync(() -> {
             try {
-                // Delete original message - matches JS behavior
+                // Delete original message
                 event.getMessage().delete().queue(null, throwable -> {});
 
                 String ytUrl = args[0];
@@ -98,7 +97,7 @@ public class YtdlHandler {
                         String jsonResponse = EntityUtils.toString(response.getEntity());
                         JsonNode data = objectMapper.readTree(jsonResponse);
 
-                        // Extract video info - matches JS data structure
+                        // Extract video info
                         String title = data.has("title") ? data.get("title").asText() : "-";
                         String author = data.has("author") ? data.get("author").asText() : "-";
                         String description = data.has("description") ? data.get("description").asText() : "-";
@@ -109,7 +108,7 @@ public class YtdlHandler {
                             throw new RuntimeException("Video URL not found in API response");
                         }
 
-                        // Build message text - matches JS format exactly
+                        // Build message text
                         String text = String.format("""
                                 **from :** <@%s>
 
@@ -125,7 +124,6 @@ public class YtdlHandler {
 
                         if (!canSendAttachment) {
                             // File too large or unknown size - send download link + thumbnail
-                            // Matches JS behavior exactly
                             if (thumbnail != null && !thumbnail.isEmpty()) {
                                 try {
                                     byte[] thumbBytes = downloadData(thumbnail);
@@ -168,4 +166,3 @@ public class YtdlHandler {
         });
     }
 }
-

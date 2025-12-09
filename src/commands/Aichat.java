@@ -24,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * AI Chat command - starts a chat session with Gemini AI.
- * Matches the functionality of aichat.js exactly.
  */
 public class Aichat {
 
@@ -51,7 +50,7 @@ public class Aichat {
         String modelDisplayName = AiChatState.getGeminiModelName();
 
         try {
-            // Only allow in forum threads - matches JS channel type check
+            // Only allow in forum threads
             if (interaction.getChannelType() != ChannelType.GUILD_PUBLIC_THREAD &&
                 interaction.getChannelType() != ChannelType.GUILD_PRIVATE_THREAD) {
                 interaction.reply("This command can only be used inside a forum post (thread).")
@@ -92,10 +91,10 @@ public class Aichat {
                         fileContent + "\n--- End of File ---";
             }
 
-            // Start the chat session - matches JS activeAIChats.set()
+            // Start the chat session
             AiChatState.startChat(channel.getId(), user.getId(), modelDisplayName);
 
-            // Build welcome embed - matches JS welcomeEmbed
+            // Build welcome embed
             String attachmentNote = "";
             if (attachment != null) {
                 attachmentNote = "\n\nFile `" + attachment.getFileName() + "`" +

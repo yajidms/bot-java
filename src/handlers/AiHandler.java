@@ -68,7 +68,7 @@ public class AiHandler {
     private static final String LOG_CHANNEL_ID = dotenv.get("LOG_CHANNEL_ID");
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    // Model configurations matching JS
+    // Model configurations
     private static final String LLAMA_MODEL = "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8";
     private static final String DEEPSEEK_MODEL = "deepseek-ai/DeepSeek-R1";
 
@@ -346,7 +346,7 @@ public class AiHandler {
                 System.out.println("[File Read] Type " + name + " is not supported.");
             }
 
-            // Truncate if too long (matching JS MAX_FILE_LEN = 20000)
+            // Truncate if too long
             final int MAX_FILE_LEN = 20000;
             String result = text.toString();
             if (result.length() > MAX_FILE_LEN) {

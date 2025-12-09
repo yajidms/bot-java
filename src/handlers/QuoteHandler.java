@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Handler for Quote of the Day functionality.
- * Matches the functionality of quoteHandler.js exactly.
  */
 public class QuoteHandler {
 
@@ -32,13 +31,12 @@ public class QuoteHandler {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     /**
-     * Quote data class - matches JS structure
+     * Quote data class
      */
     public record Quote(String quote, String author) {}
 
     /**
      * Fetches Quote of the Day from ZenQuotes API
-     * Matches JS getQuoteOfTheDay function
      */
     public static Quote getQuoteOfTheDay() {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -63,7 +61,6 @@ public class QuoteHandler {
 
     /**
      * Sends QOTD to Discord channel with embed format
-     * Matches JS sendQOTD function
      */
     public static void sendQOTD(JDA client) {
         try {
@@ -101,7 +98,6 @@ public class QuoteHandler {
 
     /**
      * Schedules QOTD based on time from .env (format HH:mm UTC time)
-     * Matches JS scheduleQOTD function using cron-like scheduling
      */
     public static void scheduleQOTD(JDA client) {
         try {
@@ -148,7 +144,6 @@ public class QuoteHandler {
 
     /**
      * Gets QOTD for user (via command), returns embed
-     * Matches JS getQOTDForUser function
      */
     public static EmbedBuilder getQOTDForUser() {
         Quote quoteData = getQuoteOfTheDay();

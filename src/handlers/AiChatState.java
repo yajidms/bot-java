@@ -7,22 +7,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * State management for AI chat sessions.
- * Matches the functionality of aiChatState.js.
  */
 public class AiChatState {
 
     private static final Dotenv dotenv = Dotenv.configure().load();
     private static final String GEMINI_API_KEY = dotenv.get("GEMINI_API_KEY");
 
-    // Store active AI chats by channel ID - matches JS activeAIChats Map
+    // Store active AI chats by channel ID
     private static final Map<String, ChatData> activeAIChats = new ConcurrentHashMap<>();
 
-    // Model configuration - matches JS constants
+    // Model configuration
     public static final String GEMINI_MODEL_NAME = "Gemini 2.5 Pro";
     public static final String GEMINI_INTERNAL_ID = "gemini-2.5-pro";
 
     /**
-     * Chat data for active sessions - matches JS chatData structure
+     * Chat data for active sessions
      */
     public static class ChatData {
         private final String channelId;

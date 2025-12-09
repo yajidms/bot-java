@@ -10,7 +10,6 @@ import java.util.List;
 
 /**
  * Event handler for message creation.
- * Matches the functionality of messageCreate.js exactly.
  */
 public class MessageCreate extends ListenerAdapter {
 
@@ -18,7 +17,7 @@ public class MessageCreate extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        // Skip bot messages and non-guild messages - matches JS: if (message.author.bot || !message.inGuild()) return;
+        // Skip bot messages and non-guild messages
         if (event.getAuthor().isBot() || !event.isFromGuild()) return;
 
         try {
@@ -26,19 +25,18 @@ public class MessageCreate extends ListenerAdapter {
             String userId = event.getAuthor().getId();
             String messageContent = event.getMessage().getContentDisplay();
 
-            // Check for active AI chat session - matches JS activeAIChats.has(message.channel.id)
+            // Check for active AI chat session
             if (AiChatState.hasActiveChat(channelId)) {
                 var chatData = AiChatState.getActiveChat(channelId);
 
                 // Only respond to the user who started the chat
-                // Matches JS: if (message.author.id !== chatData.userId) return;
                 if (!userId.equals(chatData.getUserId())) return;
 
                 // Build combined content for AI (including attachments)
                 StringBuilder combinedContentForAI = new StringBuilder(messageContent);
                 StringBuilder fileInfoText = new StringBuilder();
 
-                // Read attachments in this message - matches JS attachment handling
+                // Read attachments in this message
                 if (!event.getMessage().getAttachments().isEmpty()) {
                     // Send typing indicator
                     event.getChannel().sendTyping().queue();
@@ -110,7 +108,7 @@ public class MessageCreate extends ListenerAdapter {
                         return;
                     }
 
-                    // Split and send response - matches JS splitMessageState behavior
+                    // Split and send response
                     List<String> chunks = AiHandler.splitMessage(aiResponse, 1990);
                     var replyTo = event.getMessage();
 

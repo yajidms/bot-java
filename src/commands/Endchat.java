@@ -7,7 +7,6 @@ import handlers.AiChatState;
 
 /**
  * End chat command - ends the current AI chat session.
- * Matches the functionality of endchat.js exactly.
  */
 public class Endchat {
 
@@ -20,11 +19,10 @@ public class Endchat {
             String channelId = interaction.getChannel().getId();
             String userId = interaction.getUser().getId();
 
-            // Check if there's an active chat session - matches JS activeAIChats.get(channelId)
+            // Check if there's an active chat session
             var chatData = AiChatState.getActiveChat(channelId);
 
             // Validate session exists and belongs to this user
-            // Matches JS: if (!chatData || chatData.userId !== interaction.user.id)
             if (chatData == null || !chatData.getUserId().equals(userId)) {
                 interaction.reply("You do not have an active AI chat session in this thread.")
                         .setEphemeral(true)
@@ -32,10 +30,10 @@ public class Endchat {
                 return;
             }
 
-            // End the chat session - matches JS activeAIChats.delete(channelId)
+            // End the chat session
             AiChatState.endChat(channelId);
 
-            // Send confirmation - matches JS response
+            // Send confirmation
             interaction.reply("Your AI chat session has ended. This thread will remain open for further discussion.")
                     .setEphemeral(true)
                     .queue();

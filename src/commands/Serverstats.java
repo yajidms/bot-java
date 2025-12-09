@@ -12,7 +12,6 @@ import java.time.Instant;
 
 /**
  * Command to display server stats (CPU, RAM, uptime).
- * Matches the functionality of serverstats.js exactly.
  */
 public class Serverstats {
 
@@ -79,7 +78,7 @@ public class Serverstats {
             String systemRamTotal = systemTotalMem > 0 ? formatBytes(systemTotalMem) : "N/A";
             String systemRamFree = systemFreeMem > 0 ? formatBytes(systemFreeMem) : "N/A";
 
-            // Build embed matching JS format
+            // Build embed
             var embed = new EmbedBuilder()
                     .setTitle("📊 Server Stats")
                     .setColor(new Color(0x0099ff))

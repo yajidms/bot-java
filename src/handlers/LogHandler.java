@@ -12,12 +12,11 @@ import java.util.List;
 
 /**
  * Handler for sending logs to Discord channels.
- * Matches the functionality of logHandler.js exactly.
  */
 public class LogHandler {
 
     /**
-     * Log details class - matches JS logDetails structure
+     * Log details class
      */
     public static class LogDetails {
         public Color color;
@@ -48,7 +47,6 @@ public class LogHandler {
 
     /**
      * Sends log to specified channel with embed format
-     * Matches JS sendLog function exactly
      */
     public static void sendLog(JDA client, String channelId, LogDetails logDetails) {
         try {
@@ -68,7 +66,7 @@ public class LogHandler {
                 return;
             }
 
-            // Build footer text - matches JS logic
+            // Build footer text
             String footerText;
             if (logDetails.userId != null && logDetails.messageId != null) {
                 footerText = "User ID: " + logDetails.userId + " | Message ID: " + logDetails.messageId;
@@ -80,7 +78,7 @@ public class LogHandler {
                 footerText = "Unknown";
             }
 
-            // Build embed - matches JS embed structure
+            // Build embed
             var embed = new EmbedBuilder()
                     .setColor(logDetails.color != null ? logDetails.color : new Color(0x00ffed))
                     .setTitle(logDetails.title != null ? logDetails.title : "Log Notification")

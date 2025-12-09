@@ -20,7 +20,6 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Handler for downloading Twitter/X videos.
- * Matches the functionality of twitterHandler.js exactly.
  */
 public class TwitterHandler {
 
@@ -29,7 +28,7 @@ public class TwitterHandler {
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36";
 
     /**
-     * Gets file size from URL via HEAD request - matches JS getFileSize
+     * Gets file size from URL via HEAD request
      */
     private static long getFileSize(String url) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -63,7 +62,7 @@ public class TwitterHandler {
     }
 
     /**
-     * Handle Twitter/X download - matches JS handleX exactly
+     * Handle Twitter/X download
      */
     public static void handleX(MessageReceivedEvent event) {
         String content = event.getMessage().getContentDisplay();
@@ -74,7 +73,7 @@ public class TwitterHandler {
         String command = args[0].replace("f.", "");
 
         if ("x".equals(command)) {
-            // Validate URL - matches JS urlPattern.test(args[1])
+            // Validate URL
             if (args.length < 2 || !args[1].matches("^https?://\\S+")) {
                 event.getChannel().sendMessage("Enter a valid Twitter/X Video URL!\nExample: `f.x https://x.com/...`")
                         .queue();
@@ -83,7 +82,7 @@ public class TwitterHandler {
 
             CompletableFuture.runAsync(() -> {
                 try {
-                    // Get message content (everything after URL) - matches JS messageContent
+                    // Get message content (everything after URL)
                     StringBuilder messageContent = new StringBuilder();
                     for (int i = 2; i < args.length; i++) {
                         if (i > 2) messageContent.append(" ");
@@ -93,7 +92,7 @@ public class TwitterHandler {
                     String apiUrl = "https://api.ryzendesu.vip/api/downloader/twitter?url=" +
                             URLEncoder.encode(args[1], StandardCharsets.UTF_8);
 
-                    // Delete original message - matches JS msg.delete()
+                    // Delete original message
                     event.getMessage().delete().queue(null, throwable -> {});
 
                     try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -104,7 +103,7 @@ public class TwitterHandler {
                             String jsonResponse = EntityUtils.toString(response.getEntity());
                             JsonNode data = objectMapper.readTree(jsonResponse);
 
-                            // Check if media exists - matches JS response.data.media[0]
+                            // Check if media exists
                             if (!data.has("media") || !data.get("media").isArray() || data.get("media").isEmpty()) {
                                 throw new RuntimeException("No media found");
                             }
@@ -122,12 +121,11 @@ public class TwitterHandler {
 
                             if (fileSize > FILE_SIZE_LIMIT) {
                                 // File too large - send URL instead
-                                // Matches JS behavior: msg.channel.send(`[${messageContent || "᲼"}](${modifiedUrl})`)
                                 String modifiedUrl = videoUrl.replace("dl=1", "dl=0");
                                 String finalMessage = messageContent.toString().isEmpty() ? "᲼" : messageContent.toString();
                                 event.getChannel().sendMessage("[" + finalMessage + "](" + modifiedUrl + ")").queue();
                             } else {
-                                // Send as attachment - matches JS behavior
+                                // Send as attachment
                                 byte[] videoBytes = downloadData(videoUrl);
                                 try (InputStream videoStream = new ByteArrayInputStream(videoBytes)) {
                                     var attachment = FileUpload.fromData(videoStream, "x.mp4");
@@ -144,7 +142,7 @@ public class TwitterHandler {
                     System.err.println("Twitter download error: " + e.getMessage());
                     e.printStackTrace();
 
-                    // Check for specific error codes - matches JS error handling
+                    // Check for specific error codes
                     if (e.getMessage() != null && e.getMessage().contains("40005")) {
                         // Entity request too large - send URL instead
                         try {
@@ -183,4 +181,3 @@ public class TwitterHandler {
         }
     }
 }
-

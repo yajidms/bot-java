@@ -15,7 +15,6 @@ import java.util.List;
 
 /**
  * Command to toggle embed detection system.
- * Matches the functionality of toggleembed.js exactly.
  */
 public class Toggleembed {
 

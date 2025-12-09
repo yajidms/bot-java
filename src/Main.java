@@ -22,7 +22,6 @@ import java.util.Map;
 
 /**
  * Main entry point for the Discord bot.
- * Matches the structure and functionality of index.js exactly.
  */
 public class Main extends ListenerAdapter {
     private static JDA jda;
@@ -30,7 +29,7 @@ public class Main extends ListenerAdapter {
 
     public static void main(String[] args) {
         try {
-            // Load .env file - matches JS: require("dotenv").config()
+            // Load .env file
             Dotenv dotenv = Dotenv.configure().load();
             String token = dotenv.get("DISCORD_TOKEN");
 
@@ -39,28 +38,28 @@ public class Main extends ListenerAdapter {
                 return;
             }
 
-            // Create JDA instance with intents matching JS client configuration
+            // Create JDA instance with intents
             jda = JDABuilder.createDefault(token)
                     .enableIntents(
-                        GatewayIntent.GUILD_MESSAGES,            // GatewayIntentBits.GuildMessages
-                        GatewayIntent.MESSAGE_CONTENT,           // GatewayIntentBits.MessageContent
-                        GatewayIntent.GUILD_MEMBERS              // GatewayIntentBits.GuildMembers
+                        GatewayIntent.GUILD_MESSAGES,
+                        GatewayIntent.MESSAGE_CONTENT,
+                        GatewayIntent.GUILD_MEMBERS
                     )
                     .addEventListeners(
-                        new Main(),                              // Main message handler
-                        new InteractionCreate(),                 // Slash command handler
-                        new Ready(),                             // Ready event
-                        new MessageCreate(),                     // Message create event for AI sessions
-                        new MessageDelete(),                     // Message delete event
-                        new MessageUpdate()                      // Message update event
+                        new Main(),
+                        new InteractionCreate(),
+                        new Ready(),
+                        new MessageCreate(),
+                        new MessageDelete(),
+                        new MessageUpdate()
                     )
                     .build();
 
-            // Load events and commands - matches JS loadEvents/loadCommands
+            // Load events and commands
             EventLoader.loadEvents(jda);
             CommandLoader.loadCommands(jda);
 
-            // Initialize quote scheduler - matches JS QuoteHandler.scheduleQOTD
+            // Initialize quote scheduler
             QuoteHandler.scheduleQOTD(jda);
 
             // Wait for bot to be ready
@@ -82,28 +81,15 @@ public class Main extends ListenerAdapter {
 
     /**
      * Handles prefix-based commands from messages.
-     * Matches the JS index.js messageCreate handler exactly:
-     *
-     * client.on("messageCreate", async (message) => {
-     *   if (message.author.bot) return;
-     *   if (message.content.startsWith("f.x")) handleX(message);
-     *   if (message.content.startsWith("f.ig")) handleIg(message);
-     *   if (message.content.startsWith("f.fb")) handleFb(message);
-     *   if (message.content.startsWith("f.tt")) handleTt(message);
-     *   if (message.content.startsWith("f.yt")) handleYtDownload(message);
-     * });
      */
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        // Skip bot messages - matches JS: if (message.author.bot) return;
+        //skip bot messages : if (message.author.bot) return;
         if (event.getAuthor().isBot()) return;
 
         String content = event.getMessage().getContentDisplay();
 
-        // Handle prefix commands in order of specificity
-        // Important: Check more specific prefixes first (f.geminipropreview before f.geminipro)
-
-        // Downloader commands - matches JS index.js
+        //downloader commands
         if (content.startsWith("f.x")) {
             TwitterHandler.handleX(event);
         } else if (content.startsWith("f.ig")) {
@@ -116,7 +102,6 @@ public class Main extends ListenerAdapter {
             YtdlHandler.handleYtDownload(event);
         }
         // AI commands - handled by AiHandler
-        // Note: These are checked in AiHandler.handleAiChat which checks for:
         // f.geminipropreview, f.geminipro, f.geminiflash, f.llama, f.deepseek-r1, f.ai
         else if (content.startsWith("f.geminipropreview") ||
                  content.startsWith("f.geminipro") ||
@@ -135,4 +120,3 @@ public class Main extends ListenerAdapter {
         return jda;
     }
 }
-
